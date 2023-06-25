@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextItem" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">#673AB7</item>
+        <item name="android:textSize">30sp</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="SubTextItem" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">#804AE1</item>
+        <item name="android:textSize">20sp</item>
+        <item name="fontFamily">sans-serif</item>
+    </style>
+
+    <style name="EdittextItem" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">#804AE1</item>
+        <item name="android:textSize">20sp</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="maxLines">1</item>
+    </style>
+
+</resources>
