@@ -2,9 +2,10 @@ package com.example.listapp.ViewModel
 
 import androidx.annotation.IntDef
 import androidx.room.Ignore
+import com.example.listapp.utils.HeaderParser
 
-data class DropDownItem(val list: List<String>)
-data class NestedItem(val listViewModel: ListViewModel)
+class DropDownItem
+class NestedItem
 class ImageItem
 class VideoItem
 
@@ -29,6 +30,8 @@ class ListItemModel {
     @ListType
     var type : Int
 
+    var headerParser : HeaderParser? = null
+
     var isExpanded : Boolean
 
     lateinit var dropDown : DropDownItem
@@ -46,7 +49,11 @@ class ListItemModel {
         this.type = type
         this.isExpanded = isExpanded
     }
-
+    constructor(@ListType type : Int, headerParser : HeaderParser, isExpanded : Boolean = false){
+        this.type = type
+        this.headerParser = headerParser
+        this.isExpanded = isExpanded
+    }
     constructor(@ListType type : Int, nestedItem : NestedItem, isExpanded : Boolean = false){
         this.type = type
         this.nestedItem = nestedItem

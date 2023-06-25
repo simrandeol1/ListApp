@@ -31,7 +31,7 @@ interface ApplicationComponent {
 class MyApplication: Application() {
 
     private val imageFiles: MutableList<Uri> = mutableListOf()
-    private lateinit var videoFiles: Uri
+    private var videoFiles: MutableList<Uri> = mutableListOf()
 
     companion object {
         lateinit var instance: MyApplication
@@ -56,10 +56,10 @@ class MyApplication: Application() {
     }
 
     fun addVideoFile(file: Uri){
-        videoFiles = file
+        videoFiles.add(0,file)
     }
 
     fun getVideoFile(): Uri{
-        return videoFiles
+        return videoFiles.get(0)
     }
 }

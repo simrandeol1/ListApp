@@ -2,6 +2,7 @@
     <string name="app_name">ListApp</string>
     <string name="take_photo">Take a Photo</string>
     <string name="take_video">Take a Video</string>
+    <string name="stop_video">Stop Video</string>
     <string name="select_language">Select Language:</string>
     <string name="view_gallery">View Gallery:</string>
     <string name="capture_image">Capture Image</string>

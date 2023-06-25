@@ -24,10 +24,12 @@ import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.core.net.toUri
 import com.example.listapp.MyApplication
+import com.example.listapp.R
 import com.example.listapp.databinding.CameraActivityBinding
 import com.google.android.material.snackbar.Snackbar
 import okhttp3.Call
@@ -75,7 +77,7 @@ class CameraActivity: AppCompatActivity() {
 
         imgCaptureExecutor = Executors.newSingleThreadExecutor()
 
-        cameraPermissionResult.launch(android.Manifest.permission.CAMERA)
+        cameraPermissionResult.launch(Manifest.permission.CAMERA)
 
         binding.imageCaptureBtn.setOnClickListener {
             takePhoto()
@@ -90,15 +92,6 @@ class CameraActivity: AppCompatActivity() {
         preview = Preview.Builder().build().also {
             it.setSurfaceProvider(binding.cameraView.surfaceProvider)
         }
-        val recorder = Recorder.Builder()
-            .setQualitySelector(
-                QualitySelector.from(
-                    Quality.HIGHEST,
-                    FallbackStrategy.higherQualityOrLowerThan(Quality.SD)
-                )
-            )
-            .build()
-        videoCapture = VideoCapture.withOutput(recorder)
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
@@ -106,7 +99,15 @@ class CameraActivity: AppCompatActivity() {
             val cameraProvider = cameraProviderFuture.get()
 
             imageCapture = ImageCapture.Builder().build()
-
+            val recorder = Recorder.Builder()
+                .setQualitySelector(
+                    QualitySelector.from(
+                        Quality.HIGHEST,
+                        FallbackStrategy.higherQualityOrLowerThan(Quality.SD)
+                    )
+                )
+                .build()
+            videoCapture = VideoCapture.withOutput(recorder)
             try {
                 cameraProvider.unbindAll()
                 if(intent.extras?.get("type") == "CAMERA") {
@@ -155,14 +156,10 @@ class CameraActivity: AppCompatActivity() {
     }
 
     private fun captureVideo() {
-
-        // Check if the VideoCapture use case has been created: if not, do nothing.
-//        val videoCapture = this.videoCapture ?: return
+        val videoCapture = this.videoCapture ?: return
 
         binding.videoCaptureBtn.isEnabled = false
 
-        // If there is an active recording in progress, stop it and release the current recording.
-        // We will be notified when the captured video file is ready to be used by our application.
         val curRecording = recording
         if (curRecording != null) {
             curRecording.stop()
@@ -170,9 +167,6 @@ class CameraActivity: AppCompatActivity() {
             return
         }
 
-        // To start recording, we create a new recording session.
-        // First we create our intended MediaStore video content object,
-        // with system timestamp as the display name(so we could capture multiple videos).
         val name = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
             .format(System.currentTimeMillis())
         val contentValues = ContentValues().apply {
@@ -188,38 +182,29 @@ class CameraActivity: AppCompatActivity() {
             .setContentValues(contentValues)
             .build()
 
-        recording = videoCapture?.output
-            ?.prepareRecording(context, mediaStoreOutputOptions)
-            ?.apply {
+        recording = videoCapture.output
+            .prepareRecording(context, mediaStoreOutputOptions)
+            .apply {
                 // Enable Audio for recording
                 if (
-                    PermissionChecker.checkSelfPermission(
-                        context,
-                        Manifest.permission.RECORD_AUDIO
-                    ) ==
+                    PermissionChecker.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
                     PermissionChecker.PERMISSION_GRANTED
                 ) {
                     withAudioEnabled()
                 }
             }
-            ?.start(ContextCompat.getMainExecutor(context)) { recordEvent ->
-                when (recordEvent) {
+            .start(ContextCompat.getMainExecutor(context)) { recordEvent ->
+                when(recordEvent) {
                     is VideoRecordEvent.Start -> {
                         binding.videoCaptureBtn.apply {
-                            text = "Stop"
+                            text = getString(R.string.stop_video)
                             isEnabled = true
                         }
                     }
-
                     is VideoRecordEvent.Finalize -> {
                         if (!recordEvent.hasError()) {
-                            val msg =
-                                "Video capture succeeded: ${recordEvent.outputResults.outputUri}"
-    //                            parentFragmentManager.beginTransaction()
-    //                                .replace(R.id.container, VideoViewFragment.newInstance(recordEvent.outputResults.outputUri))
-    //                                .addToBackStack(null)
+                            val msg = "Video capture succeeded: ${recordEvent.outputResults.outputUri}"
                             MyApplication.instance.addVideoFile(recordEvent.outputResults.outputUri)
-    //                                .commit()
                             Log.d("simsim", msg)
                         } else {
                             recording?.close()
@@ -227,7 +212,7 @@ class CameraActivity: AppCompatActivity() {
                             Log.e("simsim", "Video capture ends with error: ${recordEvent.error}")
                         }
                         binding.videoCaptureBtn.apply {
-                            text = "start"
+                            text = getString(R.string.take_video)
                             isEnabled = true
                         }
                     }

@@ -18,12 +18,11 @@ import com.example.listapp.ViewHolder.HeaderViewHolder
 import com.example.listapp.ViewHolder.ImageViewHolder
 import com.example.listapp.ViewHolder.NestedViewHolder
 import com.example.listapp.ViewHolder.VideoViewHolder
-import com.example.listapp.ViewModel.DropDownItem
 import com.example.listapp.ViewModel.ImageItem
 import com.example.listapp.ViewModel.ListItemModel
 import com.example.listapp.ViewModel.ListViewModel
-import com.example.listapp.ViewModel.NestedItem
 import com.example.listapp.ViewModel.VideoItem
+import com.example.listapp.utils.StandardParserFactory
 
 class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : RecyclerView.Adapter<RecyclerView.ViewHolder>()  {
 
@@ -31,6 +30,7 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
     private val context = mCtx
     private var listVM = listViewModel
     private var languageModels: MutableList<String> = mutableListOf()
+    val parserFactory = StandardParserFactory()
     init {
         listViewModel.getLanguageData()
         listViewModel.languagemodel.observe(mCtx as LifecycleOwner){
@@ -38,10 +38,10 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
         }
     }
     private var listItemModel: MutableList<ListItemModel> = mutableListOf(
-        ListItemModel(ListItemModel.DHEADER, false),
-        ListItemModel(ListItemModel.NHEADER, false),
-        ListItemModel(ListItemModel.IHEADER, false),
-        ListItemModel(ListItemModel.VHEADER, false)
+        ListItemModel(ListItemModel.DHEADER, parserFactory.createFromType(ListItemModel.DHEADER), false),
+        ListItemModel(ListItemModel.NHEADER, parserFactory.createFromType(ListItemModel.NHEADER), false),
+        ListItemModel(ListItemModel.IHEADER, parserFactory.createFromType(ListItemModel.IHEADER), false),
+        ListItemModel(ListItemModel.VHEADER, parserFactory.createFromType(ListItemModel.VHEADER), false)
     )
 
     companion object {
@@ -58,13 +58,7 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            VIEW_TYPE_NHEADER,
-            VIEW_TYPE_IHEADER,
-            VIEW_TYPE_VHEADER,
-            VIEW_TYPE_DHEADER -> {
-                val headerViewHolder = inflater.inflate(R.layout.header_layout, parent, false)
-                HeaderViewHolder(headerViewHolder)
-            }
+
             VIEW_TYPE_DROPDOWN -> {
                 val dropDownViewHolder = inflater.inflate(R.layout.dropdown_layout, parent, false)
                 DropDownViewHolder(dropDownViewHolder)
@@ -84,7 +78,10 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
                 val videoViewHolder = inflater.inflate(R.layout.video_item_layout, parent, false)
                 VideoViewHolder(videoViewHolder)
             }
-            else -> throw IllegalArgumentException("Invalid view type")
+            else -> {
+                val headerViewHolder = inflater.inflate(R.layout.header_layout, parent, false)
+                HeaderViewHolder(headerViewHolder)
+            }
         }
     }
 
@@ -95,27 +92,8 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val row = listItemModel[position]
 
-        when(row.type){
+        when(listItemModel[position].headerParser?.type() ?: listItemModel[position].type){
 
-            VIEW_TYPE_NHEADER,
-            VIEW_TYPE_IHEADER,
-            VIEW_TYPE_VHEADER,
-            VIEW_TYPE_DHEADER  -> {
-                (holder as HeaderViewHolder).titleTextView.text = "Item: $position"
-                holder.itemView.setOnClickListener {
-                    if (!actionLock) {
-                        actionLock = true
-                        row.isExpanded = !row.isExpanded
-                        if (row.isExpanded) {
-                            holder.imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_expand))
-                            collapse(position)
-                        } else {
-                            holder.imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_collapse))
-                            expand(position)
-                        }
-                    }
-                }
-            }
             VIEW_TYPE_DROPDOWN -> {
                 listVM.getLanguageData()
                 listVM.languagemodel.observe(context as LifecycleOwner){
@@ -125,7 +103,7 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
                 }
 
                 (holder as DropDownViewHolder).spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
+                    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                         val selectedText = languageModels[position]
                         listVM.setDropDown(selectedText)
                     }
@@ -161,62 +139,44 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
 //                val directory = File(context.externalMediaDirs[0].absolutePath)
 //                val files = directory.listFiles() as Array<File>
                 (holder as VideoViewHolder).videoView.setVideoURI(MyApplication.instance.getVideoFile())
-                val mediaController = MediaController(context)
-                mediaController.setMediaPlayer(holder.videoView);
-                holder.videoView.setMediaController(mediaController)
-                mediaController.setAnchorView(holder.videoView)
                 holder.videoView.start()
-//                val adapter = GalleryAdapter(context, MyApplication.instance.getVideoFile(), "VIDEO")
-//                (holder as ImageViewHolder).viewPager.adapter = adapter
+
+                val mediaController = MediaController(context)
+                holder.videoView.setMediaController(mediaController)
+                mediaController.setAnchorView(holder.frameLayout)
+                holder.videoView.requestFocus()
+                holder.videoView.start()
+            }
+            else -> {
+                (holder as HeaderViewHolder).titleTextView.text = "Item: $position"
+                holder.itemView.setOnClickListener {
+                    if (!actionLock) {
+                        actionLock = true
+                        row.isExpanded = !row.isExpanded
+                        if (row.isExpanded) {
+                            holder.imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_expand))
+                            collapse(position)
+                        } else {
+                            holder.imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_collapse))
+                            expand(position)
+                        }
+                    }
+                }
             }
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return listItemModel[position].type
+        return listItemModel[position].headerParser?.type() ?: listItemModel[position].type
     }
 
     fun expand(position: Int) {
         var nextPosition = position
-
-        val row = listItemModel[position]
-
-        when (row.type) {
-
-            VIEW_TYPE_DHEADER -> {
-
                 /**
                  * add element just below of clicked row
                  */
-                listItemModel.add(++nextPosition, ListItemModel(ListItemModel.DROPDOWN, DropDownItem(languageModels)))
-                notifyItemRangeChanged(nextPosition, listItemModel.size)
-            }
-
-            VIEW_TYPE_NHEADER -> {
-
-                /**
-                 * add element just below of clicked row
-                 */
-                listItemModel.add(++nextPosition, ListItemModel(ListItemModel.NESTED, NestedItem(listVM)))
-                notifyItemRangeChanged(nextPosition, listItemModel.size)
-            }
-            VIEW_TYPE_IHEADER -> {
-
-                /**
-                 * add element just below of clicked row
-                 */
-                listItemModel.add(++nextPosition, ListItemModel(ListItemModel.IMAGE, ImageItem()))
-                notifyItemRangeChanged(nextPosition, listItemModel.size)
-            }
-            VIEW_TYPE_VHEADER -> {
-
-                /**
-                 * add element just below of clicked row
-                 */
-                listItemModel.add(++nextPosition, ListItemModel(ListItemModel.VIDEO, VideoItem()))
-                notifyItemRangeChanged(nextPosition, listItemModel.size)
-            }
-        }
+        listItemModel.add(++nextPosition, parserFactory.getFromType(listItemModel[position].headerParser!!.type()).addItemModel())
+        notifyItemRangeChanged(nextPosition, listItemModel.size)
         actionLock = false
     }
     fun collapse(position: Int) {
