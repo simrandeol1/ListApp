@@ -6,6 +6,10 @@ import com.example.listapp.ViewModel.ListItemModel
 import com.example.listapp.ViewModel.NestedItem
 import com.example.listapp.ViewModel.VideoItem
 
+/**
+ * Header Classes and Subclasses
+ */
+
 interface HeaderParser {
     fun type(): Int
     fun addItemModel(): ListItemModel

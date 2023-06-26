@@ -10,6 +10,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * repository pattern to maintain a single source of truth
+ */
+
 class Repository @Inject constructor(private val listDao: ListDao) {
 
     fun createDatabase(){

@@ -11,6 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * life cycle aware viewholder for expandable recycler view
+ */
+
+
 class ListViewModel: ViewModel() {
 
     @Inject

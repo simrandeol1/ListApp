@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.MediaController
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,12 +19,13 @@ import com.example.listapp.ViewHolder.HeaderViewHolder
 import com.example.listapp.ViewHolder.ImageViewHolder
 import com.example.listapp.ViewHolder.NestedViewHolder
 import com.example.listapp.ViewHolder.VideoViewHolder
-import com.example.listapp.ViewModel.ImageItem
 import com.example.listapp.ViewModel.ListItemModel
 import com.example.listapp.ViewModel.ListViewModel
-import com.example.listapp.ViewModel.VideoItem
 import com.example.listapp.utils.StandardParserFactory
-
+import com.google.android.material.snackbar.Snackbar
+/**
+ * adapter for the expandable recycler view in main activity
+ */
 class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : RecyclerView.Adapter<RecyclerView.ViewHolder>()  {
 
     private var actionLock = false
@@ -37,6 +39,11 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
             languageModels = it
         }
     }
+
+    /**
+     * Factory Design pattern to identify the type of header for different view in recycler view
+     */
+
     private var listItemModel: MutableList<ListItemModel> = mutableListOf(
         ListItemModel(ListItemModel.DHEADER, parserFactory.createFromType(ListItemModel.DHEADER), false),
         ListItemModel(ListItemModel.NHEADER, parserFactory.createFromType(ListItemModel.NHEADER), false),
@@ -58,26 +65,37 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-
+            /**
+             * view for drop down list
+             */
             VIEW_TYPE_DROPDOWN -> {
                 val dropDownViewHolder = inflater.inflate(R.layout.dropdown_layout, parent, false)
                 DropDownViewHolder(dropDownViewHolder)
             }
-
+            /**
+             * view for nested list with radio button, drop down list, edittext
+             */
             VIEW_TYPE_NESTED -> {
                 val nestedViewHolder = inflater.inflate(R.layout.nested_layout, parent, false)
                 NestedViewHolder(nestedViewHolder)
             }
-
+            /**
+             * view for showing images clicked
+             */
             VIEW_TYPE_IMAGE -> {
                 val imageViewHolder = inflater.inflate(R.layout.image_layout, parent, false)
                 ImageViewHolder(imageViewHolder)
             }
-
+            /**
+             * view for showing the recorded video
+             */
             VIEW_TYPE_VIDEO -> {
                 val videoViewHolder = inflater.inflate(R.layout.video_item_layout, parent, false)
                 VideoViewHolder(videoViewHolder)
             }
+            /**
+             * view for headers
+             */
             else -> {
                 val headerViewHolder = inflater.inflate(R.layout.header_layout, parent, false)
                 HeaderViewHolder(headerViewHolder)
@@ -113,6 +131,7 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
                     }
                 }
             }
+
             VIEW_TYPE_NESTED ->{
                 val recyclerView = (holder as NestedViewHolder).recyclerView
                 val layoutManager = LinearLayoutManager(context)
@@ -134,9 +153,12 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
                     holder.viewPager.adapter?.notifyDataSetChanged()
                 }
             }
+
             VIEW_TYPE_VIDEO -> {
-                if (MyApplication.instance.isVideoFileEmpty())
+                if (MyApplication.instance.isVideoFileEmpty()) {
+                    Toast.makeText(context,"Please record a video",Toast.LENGTH_SHORT).show()
                     return
+                }
                 (holder as VideoViewHolder).videoView.setVideoURI(MyApplication.instance.getVideoFile())
                 holder.videoView.start()
 
@@ -144,8 +166,10 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
                 holder.videoView.setMediaController(mediaController)
                 mediaController.setAnchorView(holder.frameLayout)
                 holder.videoView.requestFocus()
+                holder.videoView.visibility = View.VISIBLE
                 holder.videoView.start()
             }
+
             else -> {
                 (holder as HeaderViewHolder).titleTextView.text = "Item: $position"
                 holder.itemView.setOnClickListener {
@@ -168,8 +192,10 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
     override fun getItemViewType(position: Int): Int {
         return listItemModel[position].headerParser?.type() ?: listItemModel[position].type
     }
-
-    fun expand(position: Int) {
+    /**
+     * function to handle expand operation for the expandable recycler view
+     */
+    private fun expand(position: Int) {
         var nextPosition = position
                 /**
                  * add element just below of clicked row
@@ -178,7 +204,10 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
         notifyItemRangeChanged(nextPosition, listItemModel.size)
         actionLock = false
     }
-    fun collapse(position: Int) {
+    /**
+     * function to handle collapse operation for the expandable recycler view
+     */
+    private fun collapse(position: Int) {
         val row = listItemModel[position]
         val nextPosition = position + 1
 

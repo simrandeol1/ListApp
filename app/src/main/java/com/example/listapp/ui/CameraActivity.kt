@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
@@ -197,7 +196,7 @@ class CameraActivity: AppCompatActivity() {
                     is VideoRecordEvent.Finalize -> {
                         if (!recordEvent.hasError()) {
                             val msg = "Video capture succeeded: ${recordEvent.outputResults.outputUri}"
-                            uploadVideoFile(getVideoFromUri(recordEvent.outputResults.outputUri))
+//                            uploadVideoFile(getVideoFromUri(recordEvent.outputResults.outputUri))
                             MyApplication.instance.addVideoFile(recordEvent.outputResults.outputUri)
                         } else {
                             recording?.close()
@@ -216,6 +215,10 @@ class CameraActivity: AppCompatActivity() {
         super.onDestroy()
         imgCaptureExecutor.shutdown()
     }
+
+    /**
+     * function to upload image file to cloudinary server
+     */
 
     fun uploadFile(filePath: String?) {
         val cloudinary = Cloudinary("cloudinary://599711957751898:kG9Sj_TUY_YN54m7LFHYTqbrFVM@dglfonwnl")

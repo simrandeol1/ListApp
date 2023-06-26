@@ -1,5 +1,10 @@
 package com.example.listapp.utils
 
+/**
+ * Factory method to generate the headers using Factory design pattern
+ */
+
+
 interface HeaderParserFactory {
     fun createFromType(type: Int): HeaderParser
     fun getFromType(type: Int): HeaderParser
