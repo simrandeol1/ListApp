@@ -160,8 +160,6 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
                     return
                 }
                 (holder as VideoViewHolder).videoView.setVideoURI(MyApplication.instance.getVideoFile())
-                holder.videoView.start()
-
                 val mediaController = MediaController(context)
                 holder.videoView.setMediaController(mediaController)
                 mediaController.setAnchorView(holder.frameLayout)
@@ -171,7 +169,7 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
             }
 
             else -> {
-                (holder as HeaderViewHolder).titleTextView.text = "Item: $position"
+                (holder as HeaderViewHolder).titleTextView.text = parserFactory.getFromType(listItemModel[position].headerParser!!.type()).getHeader()
                 holder.itemView.setOnClickListener {
                     if (!actionLock) {
                         actionLock = true

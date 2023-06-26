@@ -32,7 +32,8 @@
        android:id="@+id/imgCapture"
        android:text="@string/capture_image"
        app:layout_constraintStart_toStartOf="parent"
-       app:layout_constraintBottom_toBottomOf="parent"/>
+       app:layout_constraintBottom_toBottomOf="parent"
+       android:layout_marginTop="30dp"/>
 
    <Button
        android:layout_width="wrap_content"
@@ -40,6 +41,7 @@
        android:id="@+id/video_capture_btn"
        android:text="@string/capture_video"
        app:layout_constraintEnd_toEndOf="parent"
-       app:layout_constraintBottom_toBottomOf="parent"/>
+       app:layout_constraintBottom_toBottomOf="parent"
+       android:layout_marginTop="30dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
