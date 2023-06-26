@@ -85,10 +85,10 @@ class ExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : RecyclerV
                         actionLock = true
                         row.isExpanded = !row.isExpanded
                         if (row.isExpanded) {
-                            (holder as ChildItemViewHolder).imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_expand))
+                            holder.imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_expand))
                             collapse(position)
                         } else {
-                            (holder as ChildItemViewHolder).imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_collapse))
+                            holder.imageView.setImageDrawable(AppCompatResources.getDrawable(context, R.drawable.ic_collapse))
                             expand(position)
 
                         }
@@ -106,13 +106,13 @@ class ExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : RecyclerV
     }
 
     override fun getItemViewType(position: Int): Int {
-        return rowModels.get(position).type
+        return rowModels[position].type
     }
 
-    fun expand(position: Int) {
+    private fun expand(position: Int) {
         var nextPosition = position
 
-        val row = rowModels.get(position)
+        val row = rowModels[position]
 
         when (row.type) {
 
@@ -142,8 +142,8 @@ class ExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : RecyclerV
         actionLock = false
     }
 
-    fun collapse(position: Int) {
-        val row = rowModels.get(position)
+    private fun collapse(position: Int) {
+        val row = rowModels[position]
         val nextPosition = position + 1
 
         when (row.type) {
@@ -154,11 +154,11 @@ class ExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : RecyclerV
                  * remove element from below until it ends or find another node of same type
                  */
                 outerloop@ while (true) {
-                    if (nextPosition == rowModels.size || rowModels.get(nextPosition).type === RowModel.COUNTRY) {
+                    if (nextPosition == rowModels.size || rowModels[nextPosition].type === RowModel.COUNTRY) {
                         break@outerloop
                     }
 
-                    rowModels?.removeAt(nextPosition)
+                    rowModels.removeAt(nextPosition)
                 }
 
                 notifyItemRangeChanged(nextPosition, rowModels.size)
@@ -170,7 +170,7 @@ class ExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : RecyclerV
                  * remove element from below until it ends or find another node of same type or find another parent node
                  */
                 outerloop@ while (true) {
-                    if (nextPosition == rowModels.size || rowModels.get(nextPosition).type === RowModel.STATE || rowModels.get(nextPosition).type === RowModel.COUNTRY) {
+                    if (nextPosition == rowModels.size || rowModels[nextPosition].type === RowModel.STATE || rowModels[nextPosition].type === RowModel.COUNTRY) {
                         break@outerloop
                     }
                     rowModels.removeAt(nextPosition)

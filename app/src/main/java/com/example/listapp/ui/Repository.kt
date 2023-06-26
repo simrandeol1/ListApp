@@ -10,7 +10,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class Repository @Inject constructor(val listDao: ListDao) {
+class Repository @Inject constructor(private val listDao: ListDao) {
 
     fun createDatabase(){
         val grandchildItems: MutableList<GrandchildItem> = mutableListOf<GrandchildItem>().also {

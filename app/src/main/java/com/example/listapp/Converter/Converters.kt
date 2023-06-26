@@ -9,36 +9,36 @@ import com.google.gson.Gson
 
 class Converters {
     @TypeConverter
-    fun StringToItem(string: String?): ParentItem? {
+    fun stringToItem(string: String?): ParentItem? {
         if (TextUtils.isEmpty(string))
             return null
         return Gson().fromJson(string, ParentItem::class.java)
     }
 
     @TypeConverter
-    fun ItemeToString(parentItem: ParentItem?): String? {
+    fun itemToString(parentItem: ParentItem?): String? {
         return Gson().toJson(parentItem)
     }
     @TypeConverter
-    fun StringToCItem(string: String?): ChildItem? {
+    fun stringToCItem(string: String?): ChildItem? {
         if (TextUtils.isEmpty(string))
             return null
         return Gson().fromJson(string, ChildItem::class.java)
     }
 
     @TypeConverter
-    fun CItemeToString(parentItem: ChildItem?): String? {
+    fun cItemToString(parentItem: ChildItem?): String? {
         return Gson().toJson(parentItem)
     }
     @TypeConverter
-    fun StringToGItem(string: String?): GrandchildItem? {
+    fun stringToGItem(string: String?): GrandchildItem? {
         if (TextUtils.isEmpty(string))
             return null
         return Gson().fromJson(string, GrandchildItem::class.java)
     }
 
     @TypeConverter
-    fun GItemeToString(parentItem: GrandchildItem?): String? {
+    fun gItemToString(parentItem: GrandchildItem?): String? {
         return Gson().toJson(parentItem)
     }
 }

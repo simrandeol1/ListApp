@@ -123,21 +123,20 @@ class ParentExpandableAdapter(mCtx: Context, listViewModel: ListViewModel) : Rec
             }
 
             VIEW_TYPE_IMAGE -> {
-//                val directory = File(context.externalMediaDirs[0].absolutePath)
-//                val files = directory.listFiles() as Array<File>
-
                 if(MyApplication.instance.getImageFile().size == 0) {
                     (holder as ImageViewHolder).viewPager.visibility = View.GONE
                     holder.title.text = "No Images"
                 }
                 else {
+
                     val adapter = GalleryAdapter(context, MyApplication.instance.getImageFile(), "IMAGE")
                     (holder as ImageViewHolder).viewPager.adapter = adapter
+                    holder.viewPager.adapter?.notifyDataSetChanged()
                 }
             }
             VIEW_TYPE_VIDEO -> {
-//                val directory = File(context.externalMediaDirs[0].absolutePath)
-//                val files = directory.listFiles() as Array<File>
+                if (MyApplication.instance.isVideoFileEmpty())
+                    return
                 (holder as VideoViewHolder).videoView.setVideoURI(MyApplication.instance.getVideoFile())
                 holder.videoView.start()
 

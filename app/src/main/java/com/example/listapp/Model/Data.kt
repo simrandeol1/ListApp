@@ -48,12 +48,6 @@ class RowModel{
         this.language = language
     }
     @Ignore
-    constructor(@RowType type : Int, country : ParentItem, isExpanded : Boolean = false){
-        this.type = type
-        this.country = country
-        this.isExpanded = isExpanded
-    }
-    @Ignore
     constructor(@RowType type : Int, state : ChildItem, isExpanded : Boolean = false){
         this.type = type
         this.state = state

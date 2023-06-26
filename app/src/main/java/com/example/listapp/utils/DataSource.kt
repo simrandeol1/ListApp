@@ -17,8 +17,6 @@ class DataSource(applicationContext: Context){
             applicationContext,
             AppDatabase::class.java, "rowmodel"
         ).allowMainThreadQueries().build()
-//        if(getListDao().getAll().size == 0)
-//            createDatabase()
     }
 
     @Singleton
@@ -29,6 +27,6 @@ class DataSource(applicationContext: Context){
 
     @Singleton
     @Provides
-    fun getWeatherDAO() = INSTANCE.listDao()
+    fun getListDAO() = INSTANCE.listDao()
 
 }

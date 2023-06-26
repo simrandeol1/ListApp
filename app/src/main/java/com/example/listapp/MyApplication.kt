@@ -2,19 +2,10 @@ package com.example.listapp
 
 import android.app.Application
 import android.net.Uri
-import androidx.room.Room
-import com.example.listapp.Dao.ListDao
-import com.example.listapp.Database.AppDatabase
-import com.example.listapp.Model.ChildItem
-import com.example.listapp.Model.GrandchildItem
-import com.example.listapp.Model.ParentItem
-import com.example.listapp.Model.RowModel
+import com.cloudinary.android.MediaManager
 import com.example.listapp.ViewModel.ListViewModel
 import com.example.listapp.utils.DataSource
 import dagger.Component
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import javax.inject.Singleton
 
 
@@ -30,9 +21,8 @@ interface ApplicationComponent {
 
 class MyApplication: Application() {
 
-    private val imageFiles: MutableList<Uri> = mutableListOf()
+    private val imageFiles: MutableList<String> = mutableListOf()
     private var videoFiles: MutableList<Uri> = mutableListOf()
-
     companion object {
         lateinit var instance: MyApplication
     }
@@ -46,12 +36,15 @@ class MyApplication: Application() {
             .builder()
             .dataSource(DataSource(this))
             .build()
+        val config: MutableMap<String, String> = HashMap<String, String>()
+        config["dglfonwnl"] = "myCloudName"
+        MediaManager.init(this, config)
     }
-    fun addImageFile(file: Uri){
+    fun addImageFile(file: String){
         imageFiles.add(file)
     }
 
-    fun getImageFile(): MutableList<Uri>{
+    fun getImageFile(): MutableList<String>{
         return imageFiles
     }
 
@@ -61,5 +54,9 @@ class MyApplication: Application() {
 
     fun getVideoFile(): Uri{
         return videoFiles.get(0)
+    }
+
+    fun isVideoFileEmpty(): Boolean{
+        return videoFiles.size==0
     }
 }
